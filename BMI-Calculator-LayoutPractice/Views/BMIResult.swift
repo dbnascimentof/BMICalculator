@@ -10,14 +10,14 @@ import UIKit
 
 class BMIResult: UIViewController {
     
-    let padding: CGFloat = 30
-    var bmiResult: Float!
-    let callToActionButton = BMIButton(title: "Recalculate BMI", style: "secondary")
-    let bmiResultLabel = BMILabel(textLabel: "", textLabelColor: UIColor.white, textLabelType: "heading")
+    private lazy var height: Float = 0
+    private lazy var weight: Float = 0
+    private lazy var bmiViewModel: BMIViewModel = BMIViewModel(height: self.height, weight: self.weight)
     
-    init(bmiResult: Float!) {
+    init(weight: Float, height: Float){
         super.init(nibName: nil, bundle: nil)
-        self.bmiResult = bmiResult
+        self.height = height
+        self.weight = weight
     }
     
     required init?(coder: NSCoder) {
@@ -26,50 +26,59 @@ class BMIResult: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        view.backgroundColor = UIColor.systemBlue
-        navigationController?.navigationBar.tintColor = UIColor.white
         
-        configureBackgroundImageView()
-        configureResultLabel()
-        configureButton()
-    }
-    
-    func configureBackgroundImageView() {
+        view.backgroundColor = bmiViewModel.getColor()
+        
         let backgroundImage = UIImageView(frame: view.bounds)
-        
+        backgroundImage.image       = UIImage(named: "result_background")
+        backgroundImage.contentMode = .scaleAspectFill
         view.addSubview(backgroundImage)
         view.sendSubviewToBack(backgroundImage)
         
-        backgroundImage.image       = UIImage(named: "result_background")
-        backgroundImage.contentMode = .scaleAspectFill
+        configureStackView()
+        configureButton()
+    }
+    
+    func configureStackView(){
+        // Stackview configuration
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.distribution = .fill
+        view.addSubview(stackView)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+        ])
+        
+        // BMI Result
+        let bmiResultLabel = BMILabel(textLabel: bmiViewModel.calculate(), textLabelColor: UIColor.white, textLabelType: "heading")
+        stackView.addArrangedSubview(bmiResultLabel)
+        
+        // BMI Classification
+        let bmiClassification = bmiViewModel.getClassification()
+        let bmiClassificationLabel = BMILabel(textLabel: bmiClassification, textLabelColor: UIColor.white, textLabelType: "body")
+        stackView.addArrangedSubview(bmiClassificationLabel)
+
     }
     
     func configureButton() {
-        view.addSubview(callToActionButton)
+        let callToActionButton = BMIButton(title: "Recalculate BMI", style: "secondary")
         callToActionButton.addTarget(self, action: #selector(recalculateBMI), for: .touchUpInside)
+        view.addSubview(callToActionButton)
         
         NSLayoutConstraint.activate([
             callToActionButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
-            callToActionButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
-            callToActionButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+            callToActionButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            callToActionButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             callToActionButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
-    
-    func configureResultLabel(){
-        view.addSubview(bmiResultLabel)
-        bmiResultLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        bmiResultLabel.text = String(format: "%.0f", bmiResult)
-        
-        NSLayoutConstraint.activate([
-            bmiResultLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            bmiResultLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-    }
-    
+
     @objc func recalculateBMI(){
-        navigationController?.popViewController(animated: true)
+        dismiss(animated: true)
     }
 }

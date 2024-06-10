@@ -12,6 +12,7 @@ class BMICalc: UIViewController {
     
     let padding: CGFloat = 30
     
+    // UI Elements
     let titleLabel = BMILabel(textLabel: "Calculate your BMI", textLabelColor: UIColor(named: "BMIPurple")!, textLabelType: "title")
     var weightLabel = BMILabel(textLabel: "", textLabelColor: UIColor(named: "BMIPurple")!, textLabelType: "body")
     let weightSlider = UISlider()
@@ -67,7 +68,7 @@ class BMICalc: UIViewController {
         heightSlider.addTarget(self, action: #selector(updateSlideValue), for: .touchDragInside)
         
         heightSlider.minimumValue = 0
-        heightSlider.maximumValue = 3
+        heightSlider.maximumValue = 2
         heightSlider.tintColor = UIColor(named: "BMIPurple")
         updateSlideValue()
         
@@ -111,8 +112,8 @@ class BMICalc: UIViewController {
     
     
     @objc func updateSlideValue() {
-        heightLabel.text = "Height: \(String(format: "%.2f", heightSlider.value)) m"
-        weightLabel.text = "Weight: \(String(format: "%.0f", weightSlider.value)) Kg"
+        heightLabel.text = "Height: \(String(format: "%.2f", heightSlider.value))"
+        weightLabel.text = "Weight: \(String(format: "%.0f", weightSlider.value))"
     }
     
     
@@ -129,7 +130,8 @@ class BMICalc: UIViewController {
     }
     
     @objc func calcBMI(){
-        let bmiResult: Float = weightSlider.value / (heightSlider.value * heightSlider.value)
-        navigationController?.pushViewController(BMIResult(bmiResult: bmiResult), animated: true)
+        navigationController?.modalPresentationStyle = .formSheet
+        //present(BMIResult(bmiResult: bmiResult), animated: true)
+        present(BMIResult(weight: weightSlider.value, height: heightSlider.value), animated: true)
     }
 }
